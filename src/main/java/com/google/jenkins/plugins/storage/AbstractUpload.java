@@ -421,7 +421,7 @@ public abstract class AbstractUpload
     contentTypes.put("ttf", "application/x-font-ttf");
     contentTypes.put("woof", "application/x-font-woff");
     
-    String extension = filename.substring(filename.lastIndexOf('.') + 1);
+    String extension = String.getFileExtension(filename);
     if (contentTypes.containsKey(extension)) {
         return contentTypes.get(extension);
     } else {
