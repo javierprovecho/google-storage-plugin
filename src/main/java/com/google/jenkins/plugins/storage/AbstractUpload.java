@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Hashtable;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -371,7 +372,7 @@ public abstract class AbstractUpload
             .setContentDisposition(
                 HttpHeaders.getContentDisposition(include.getName()))
             .setContentType(
-                URLConnection.guessContentTypeFromName(include.getName()))
+                detectMIMEType(include.getName()))
             .setSize(BigInteger.valueOf(include.length()));
 
         if (isSharedPublicly()) {
@@ -401,6 +402,30 @@ public abstract class AbstractUpload
     } catch (InterruptedException e) {
       throw new UploadException(
           Messages.AbstractUpload_ExceptionFileUpload(), e);
+    }
+  }
+  
+  /**
+   * Auxiliar method for detecting web-related filename extensions, so
+   * setting correctly Content-Type.
+   */
+  private String detectMIMEType(String filename) {
+    Hashtable<String,String> contentTypes = new Hashtable<String,String>();
+    contentTypes.put("css", "text/css");
+    contentTypes.put("gz", "application/x-compressed");
+    contentTypes.put("js", "application/javascript");
+    contentTypes.put("pdf", "application/pdf");
+    contentTypes.put("eot", "application/vnd.ms-fontobject");
+    contentTypes.put("otf", "font/opentype");
+    contentTypes.put("svg", "image/svg+xml");
+    contentTypes.put("ttf", "application/x-font-ttf");
+    contentTypes.put("woof", "application/x-font-woff");
+    
+    String extension = filename.substring(filename.lastIndexOf('.') + 1);
+    if (contentTypes.containsKey(extension)) {
+        return contentTypes.get(extension);
+    } else {
+        return URLConnection.guessContentTypeFromName(filename);
     }
   }
 
